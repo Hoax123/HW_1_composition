@@ -8,3 +8,6 @@ export function InformationLayout({text}) {
 InformationLayout.propTypes = {
     text: PropTypes.string,
 }
+
+
+

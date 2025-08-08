@@ -1,17 +1,18 @@
-import { useState } from 'react'
+import {useEffect, useState} from 'react'
 import styles from './Game.module.css'
 import {GameLayout} from "./GameLayout.jsx";
+import {store} from "../../stateManagment/store/store.jsx";
 
 
 function Game() {
-  const [currentPlayer, setCurrentPlayer] = useState('X');
-  const [isGameEnded, setIsGameEnded] = useState(false);
-  const [isDraw, setIsDraw] = useState(false);
-  const [field, setField] = useState([
-    '', '', '',
-    '', '', '',
-    '', '', '',
-  ]);
+  const [gameState, setGameState] = useState(store.getState())
+
+  useEffect(() => {
+    const unsubscribe = store.subscribe(
+        () => {setGameState(store.getState())}
+    )
+    return unsubscribe
+  }, [])
 
   const WIN_PATTERNS = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -19,54 +20,45 @@ function Game() {
     [0, 4, 8], [2, 4, 6]
   ];
 
+
   function handleCellClick(index) {
-    if (field[index] !== '' || isGameEnded) return
-    let newField = [...field]
-    newField[index] = currentPlayer
+    if (gameState.field[index] !== '' || gameState.isGameEnded) return
+    let newField = [...gameState.field]
+    newField[index] = gameState.currentPlayer
 
     let hasWon = WIN_PATTERNS.some(([a,b,c]) => {
       return (
-          newField[a] === currentPlayer && newField[b] === currentPlayer && newField[c] === currentPlayer
+          newField[a] === gameState.currentPlayer && newField[b] === gameState.currentPlayer && newField[c] === gameState.currentPlayer
       )
     })
 
     if (hasWon) {
-      setField(newField)
-      setIsGameEnded(true)
+      store.dispatch({type: "SET_FIELD", payload: newField})
+      store.dispatch({type:"SET_GAME_ENDED", payload: true})
       return
     }
 
     let allCellsFilled = newField.every(cell => cell !== '')
     if (allCellsFilled) {
-      setField(newField)
-      setIsDraw(true)
-      setIsGameEnded(true)
+      store.dispatch({type:"SET_FIELD", payload: newField})
+      store.dispatch({type:"SET_IS_DRAW", payload: true})
+      store.dispatch({type:"SET_GAME_ENDED", payload: true})
       return
     }
 
-    setField(newField)
-    setCurrentPlayer(currentPlayer === 'X' ? '0' : 'X')
+
+    store.dispatch({type:"SET_FIELD", payload: newField})
+    store.dispatch({type:"SET_CURRENT_PLAYER", payload: gameState.currentPlayer === 'X' ? '0' : 'X'})
   }
 
   function handleRestart() {
-    setField([
-      '', '', '',
-      '', '', '',
-      '', '', '',
-    ])
-    setCurrentPlayer('X')
-    setIsGameEnded(false)
-    setIsDraw(false)
+    store.dispatch({type:"RESTART_GAME"})
   }
 
 
   return (
     <div className={styles.wrapper}>
-        <GameLayout currentPlayer={currentPlayer}
-                    isGameEnded={isGameEnded}
-                    isDraw={isDraw}
-                    field={field}
-                    onRestart={handleRestart}
+        <GameLayout onRestart={handleRestart}
                     onCellClick={handleCellClick}
         />
     </div>

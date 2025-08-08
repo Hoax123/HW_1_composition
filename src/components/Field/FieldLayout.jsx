@@ -17,3 +17,4 @@ FieldLayout.propTypes = {
     field: PropTypes.array,
     onCellClick: PropTypes.func,
 }
+

@@ -10,3 +10,6 @@ export function Information({text}) {
 Information.propTypes = {
     text: PropTypes.string,
 }
+
+
+

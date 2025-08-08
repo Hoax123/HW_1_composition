@@ -2,11 +2,24 @@ import {Field} from "../Field/Field.jsx";
 import {Information} from "../Information/Information.jsx";
 import styles from "./GameLayout.module.css"
 import PropTypes from "prop-types";
+import {store} from "../../stateManagment/store/store.jsx";
+import {useEffect, useState} from "react";
 
 
-export function GameLayout({currentPlayer, isGameEnded, isDraw, field, onRestart, onCellClick}) {
+export function GameLayout({onRestart, onCellClick}) {
+    const [gameState, setGameState] = useState(store.getState())
+
+    useEffect(() => {
+        const unsubscribe = store.subscribe(
+            () => {setGameState(store.getState())}
+        )
+        return unsubscribe
+    }, [])
+
     let info = ''
-    if (isDraw) {info = 'Ничья'} else if (isGameEnded) {info = `Победитель: ${currentPlayer}`} else {info = `Ходит: ${currentPlayer}`}
+    if (gameState.isDraw) {info = 'Ничья'}
+    else if (gameState.isGameEnded) {info = `Победитель: ${gameState.currentPlayer}`}
+    else {info = `Ходит: ${gameState.currentPlayer}`}
 
 
 
@@ -14,7 +27,7 @@ export function GameLayout({currentPlayer, isGameEnded, isDraw, field, onRestart
             <div className={styles["game-layout"]}>
                 <div className={styles.inner}>
                     <Information text={info}/>
-                    <Field field={field} onCellClick={onCellClick}/>
+                    <Field onCellClick={onCellClick}/>
                     <button className={styles.restartButton} onClick={onRestart}>Начать заново</button>
                 </div>
             </div>
@@ -29,3 +42,4 @@ GameLayout.propTypes = {
     onRestart: PropTypes.func,
     onCellClick: PropTypes.func,
 }
+
