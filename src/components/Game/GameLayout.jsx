@@ -2,24 +2,16 @@ import {Field} from "../Field/Field.jsx";
 import {Information} from "../Information/Information.jsx";
 import styles from "./GameLayout.module.css"
 import PropTypes from "prop-types";
-import {store} from "../../stateManagment/store/store.jsx";
-import {useEffect, useState} from "react";
+import {useSelector} from "react-redux";
 
 
 export function GameLayout({onRestart, onCellClick}) {
-    const [gameState, setGameState] = useState(store.getState())
-
-    useEffect(() => {
-        const unsubscribe = store.subscribe(
-            () => {setGameState(store.getState())}
-        )
-        return unsubscribe
-    }, [])
+    const {isGameEnded, isDraw, currentPlayer} = useSelector(state => state)
 
     let info = ''
-    if (gameState.isDraw) {info = 'Ничья'}
-    else if (gameState.isGameEnded) {info = `Победитель: ${gameState.currentPlayer}`}
-    else {info = `Ходит: ${gameState.currentPlayer}`}
+    if (isDraw) {info = 'Ничья'}
+    else if (isGameEnded) {info = `Победитель: ${currentPlayer}`}
+    else {info = `Ходит: ${currentPlayer}`}
 
 
 
